@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+    <body>
+        <div th:fragment="sidebar">
+            <div id="sidebar">
+                <h4 class="text-center py-3">Pediu Patrão</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}" aria-current="page">
+                            <i class="bi bi-house"></i><span class="d-none d-md-inline">&nbsp;Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/clientes}">
+                            <i class="bi bi-person-raised-hand"></i><span class="d-none d-md-inline">&nbsp;Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/pedidos}">
+                            <i class="bi bi-bag"></i><span class="d-none d-md-inline">&nbsp;Pedidos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="toggleSubmenu(event, this)">
+                            <i class="bi bi-gear"></i><span class="d-none d-md-inline">&nbsp;Configurações</span>
+                            <span class="float-end">&#9662;</span> <!-- Setinha -->
+                        </a>
+                        <ul class="nav flex-column submenu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/funcionarios}">
+                                    <i class="bi bi-person-walking"></i><span class="d-none d-md-inline">&nbsp;Funcionários</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/entregadores}">
+                                    <i class="bi bi-bicycle"></i><span class="d-none d-md-inline">&nbsp;Entregadores</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/horarios}">
+                                    <i class="bi bi-clock"></i><span class="d-none d-md-inline">&nbsp;Horário de Funcionamento</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/produtos}">
+                                    <i class="bi bi-boxes"></i><span class="d-none d-md-inline">&nbsp;Produtos</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/usuarios}">
+                                    <i class="bi bi-people-fill"></i><span class="d-none d-md-inline">&nbsp;Usuários</span>
+                                </a>
+                            </li>
+                    </li>
+                </ul>
+                </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - PediuPatrão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+
+    <div class="text-center px-4" style="max-width: 520px;">
+
+        <!-- Código do erro -->
+        <div class="display-1 fw-bold text-danger" th:text="${status ?: '?'}">500</div>
+
+        <!-- Ícone -->
+        <div class="my-3">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+        </div>
+
+        <!-- Título baseado no status -->
+        <h2 class="fw-bold mb-2">
+            <span th:if="${status == 404}">Página não encontrada</span>
+            <span th:if="${status == 403}">Acesso negado</span>
+            <span th:if="${status == 500}">Erro interno do servidor</span>
+            <span th:if="${status != 404 and status != 403 and status != 500}">Algo deu errado</span>
+        </h2>
+
+        <!-- Mensagem amigável -->
+        <p class="text-muted mb-1">
+            <span th:if="${status == 404}">A página que você está procurando não existe ou foi removida.</span>
+            <span th:if="${status == 403}">Você não tem permissão para acessar este recurso.</span>
+            <span th:if="${status == 500}">Ocorreu um erro inesperado. Tente novamente em instantes.</span>
+            <span th:if="${status != 404 and status != 403 and status != 500}">Ocorreu um erro ao processar sua requisição.</span>
+        </p>
+
+        <!-- Mensagem técnica, se disponível -->
+        <p class="text-muted small mb-4" th:if="${message != null and !#strings.isEmpty(message)}">
+            <code th:text="${message}"></code>
+        </p>
+
+        <!-- Botões de ação -->
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house me-1"></i> Voltar para Home
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Página anterior
+            </a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

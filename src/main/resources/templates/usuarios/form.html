@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Usuário</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/usuarios" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0">
+            <span th:text="${usuario.id != null} ? 'Editar Usuário' : 'Novo Usuário'"></span>
+        </h2>
+    </div>
+
+    <div class="card shadow-sm" style="max-width: 540px;">
+        <div class="card-body p-4">
+
+            <form th:action="${usuario.id != null}
+                        ? @{/usuarios/editar/{id}(id=${usuario.id})}
+                        : @{/usuarios/salvar}"
+                  th:object="${usuario}"
+                  method="post">
+
+                <!-- Username -->
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-medium">
+                        <i class="bi bi-person me-1"></i>Username
+                    </label>
+                    <input type="text"
+                           id="username"
+                           class="form-control"
+                           th:field="*{username}"
+                           placeholder="Ex: joao.silva"
+                           required/>
+                </div>
+
+                <!-- Senha -->
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-medium">
+                        <i class="bi bi-lock me-1"></i>Senha
+                        <small class="text-muted fw-normal" th:if="${usuario.id != null}">
+                            — deixe em branco para manter a atual
+                        </small>
+                    </label>
+                    <div class="input-group">
+                        <input type="password"
+                               id="password"
+                               class="form-control"
+                               th:field="*{password}"
+                               placeholder="••••••••"
+                               th:required="${usuario.id == null}"/>
+                        <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="mb-4">
+                    <label for="role" class="form-label fw-medium">
+                        <i class="bi bi-shield me-1"></i>Perfil
+                    </label>
+                    <select id="role" class="form-select" th:field="*{role}" required>
+                        <option value="" disabled>Selecione um perfil</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="USER">USER</option>
+                    </select>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>
+                        <span th:text="${usuario.id != null} ? 'Salvar Alterações' : 'Criar Usuário'"></span>
+                    </button>
+                    <a href="/usuarios" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle mostrar/ocultar senha
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const input = document.getElementById('password');
+            const icon  = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

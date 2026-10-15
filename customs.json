@@ -1,0 +1,17 @@
+{
+    "elements": {},
+    "attributes": {
+        "th:text": {
+            "context": "title"
+        },
+        "th:replace": {
+            "context": "div"
+        },
+        "th:href": {
+            "context": "a"
+        },
+        "th:fragment": {
+            "context": "div"
+        }
+    }
+}

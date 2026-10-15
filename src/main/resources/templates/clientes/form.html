@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cliente</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/clientes" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0">
+            <span th:text="${cliente.id != null} ? 'Editar Cliente' : 'Novo Cliente'"></span>
+        </h2>
+    </div>
+
+    <div class="card shadow-sm" style="max-width: 600px;">
+        <div class="card-body p-4">
+
+            <form th:action="${cliente.id != null}
+                        ? @{/clientes/editar/{id}(id=${cliente.id})}
+                        : @{/clientes/salvar}"
+                  th:object="${cliente}"
+                  method="post">
+
+                <!-- Nome -->
+                <div class="mb-3">
+                    <label for="nome" class="form-label fw-medium">
+                        <i class="bi bi-person me-1"></i>Nome
+                    </label>
+                    <input type="text"
+                           id="nome"
+                           class="form-control"
+                           th:field="*{nome}"
+                           placeholder="Ex: João da Silva"
+                           required/>
+                </div>
+
+                <!-- Telefone -->
+                <div class="mb-3">
+                    <label for="telefone" class="form-label fw-medium">
+                        <i class="bi bi-telephone me-1"></i>Telefone
+                    </label>
+                    <input type="text"
+                           id="telefone"
+                           class="form-control"
+                           th:field="*{telefone}"
+                           placeholder="Ex: (11) 99999-9999"
+                           required/>
+                </div>
+
+                <hr class="my-3"/>
+                <p class="fw-medium mb-3"><i class="bi bi-geo-alt me-1"></i>Endereço</p>
+
+                <!-- CEP -->
+                <div class="mb-3">
+                    <label for="cep" class="form-label fw-medium">CEP</label>
+                    <div class="input-group">
+                        <input type="text"
+                               id="cep"
+                               class="form-control"
+                               th:field="*{cep}"
+                               placeholder="Ex: 01310-100"
+                               maxlength="9"/>
+                        <button type="button" class="btn btn-outline-secondary" id="btnBuscarCep">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div id="cepErro" class="text-danger small mt-1" style="display:none;">
+                        CEP não encontrado.
+                    </div>
+                </div>
+
+                <!-- Logradouro -->
+                <div class="mb-3">
+                    <label for="logradouro" class="form-label fw-medium">Logradouro</label>
+                    <input type="text"
+                           id="logradouro"
+                           class="form-control"
+                           th:field="*{logradouro}"
+                           placeholder="Ex: Rua das Flores"/>
+                </div>
+
+                <!-- Número + Complemento -->
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label for="numero" class="form-label fw-medium">Número</label>
+                        <input type="text"
+                               id="numero"
+                               class="form-control"
+                               th:field="*{numero}"
+                               placeholder="Ex: 123"/>
+                    </div>
+                    <div class="col-8">
+                        <label for="complemento" class="form-label fw-medium">Complemento</label>
+                        <input type="text"
+                               id="complemento"
+                               class="form-control"
+                               th:field="*{complemento}"
+                               placeholder="Ex: Apto 42"/>
+                    </div>
+                </div>
+
+                <!-- Bairro -->
+                <div class="mb-3">
+                    <label for="bairro" class="form-label fw-medium">Bairro</label>
+                    <input type="text"
+                           id="bairro"
+                           class="form-control"
+                           th:field="*{bairro}"
+                           placeholder="Ex: Centro"/>
+                </div>
+
+                <!-- Cidade + Estado -->
+                <div class="row mb-4">
+                    <div class="col-8">
+                        <label for="cidade" class="form-label fw-medium">Cidade</label>
+                        <input type="text"
+                               id="cidade"
+                               class="form-control"
+                               th:field="*{cidade}"
+                               placeholder="Ex: São Paulo"/>
+                    </div>
+                    <div class="col-4">
+                        <label for="estado" class="form-label fw-medium">Estado</label>
+                        <input type="text"
+                               id="estado"
+                               class="form-control"
+                               th:field="*{estado}"
+                               placeholder="Ex: SP"
+                               maxlength="2"/>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>
+                        <span th:text="${cliente.id != null} ? 'Salvar Alterações' : 'Criar Cliente'"></span>
+                    </button>
+                    <a href="/clientes" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Máscara de CEP
+        document.getElementById('cep').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 8);
+            this.value = v;
+
+            // Busca automática ao completar 9 caracteres (00000-000)
+            if (this.value.length === 9) buscarCep();
+        });
+
+        // Busca ao clicar no botão
+        document.getElementById('btnBuscarCep').addEventListener('click', buscarCep);
+
+        async function buscarCep() {
+            const cep = document.getElementById('cep').value.replace(/\D/g, '');
+            const erro = document.getElementById('cepErro');
+            erro.style.display = 'none';
+
+            if (cep.length !== 8) return;
+
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    erro.style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('logradouro').value = data.logradouro || '';
+                document.getElementById('bairro').value     = data.bairro     || '';
+                document.getElementById('cidade').value     = data.localidade  || '';
+                document.getElementById('estado').value     = data.uf          || '';
+
+                // Foca no campo número após preencher
+                document.getElementById('numero').focus();
+
+            } catch (e) {
+                erro.textContent = 'Erro ao buscar o CEP. Tente novamente.';
+                erro.style.display = 'block';
+            }
+        }
+
+        // Máscara de telefone
+        document.getElementById('telefone').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length <= 10) {
+                v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else {
+                v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+            }
+            this.value = v;
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

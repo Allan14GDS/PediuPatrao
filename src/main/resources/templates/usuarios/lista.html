@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Usuários</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-people-fill me-2 text-primary"></i>Usuários
+        </h2>
+        <a href="/usuarios/novo" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Novo Usuário
+        </a>
+    </div>
+
+    <!-- Mensagens de feedback -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${sucesso}" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${erro}" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col" class="ps-4">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Role</th>
+                        <th scope="col" class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lista vazia -->
+                    <tr th:if="${#lists.isEmpty(usuarios)}">
+                        <td colspan="4" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Nenhum usuário cadastrado.
+                        </td>
+                    </tr>
+                    <!-- Linhas -->
+                    <tr th:each="usuario, stat : ${usuarios}">
+                        <td class="ps-4 text-muted" th:text="${stat.index + 1}"></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle">
+                                    <span th:text="${#strings.toUpperCase(#strings.substring(usuario.username, 0, 1))}"></span>
+                                </div>
+                                <span class="fw-medium" th:text="${usuario.username}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${usuario.role == 'ADMIN'} ? 'bg-danger' : 'bg-secondary'"
+                                  th:text="${usuario.role}">
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-fill"></i> Editar
+                            </a>
+                            <form th:action="@{/usuarios/deletar/{id}(id=${usuario.id})}"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Deseja realmente excluir este usuário?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash-fill"></i> Excluir
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-muted small" th:if="${!#lists.isEmpty(usuarios)}">
+            Total: <strong th:text="${#lists.size(usuarios)}"></strong> usuário(s)
+        </div>
+    </div>
+
+    <style>
+        .avatar-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: #0d6efd22;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+    </style>
+
+</div>
+
+</body>
+</html>
