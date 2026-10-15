@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Lista de Clientes</title>
 </head>
@@ -9,7 +10,7 @@
         <h2 class="fw-bold mb-0">
             <i class="bi bi-person-raised-hand me-2 text-primary"></i>Clientes
         </h2>
-        <a href="/clientes/novo" class="btn btn-primary">
+        <a href="/clientes/novo" class="btn btn-primary" sec:authorize="hasRole('ATENDENTE')">
             <i class="bi bi-plus-lg me-1"></i> Novo Cliente
         </a>
     </div>
@@ -23,7 +24,7 @@
                         <th>Nome</th>
                         <th>Telefone</th>
                         <th>Endereço</th>
-                        <th class="text-end pe-4">Ações</th>
+                        <th class="text-end pe-4" sec:authorize="hasRole('ATENDENTE')" data-col-acoes>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="clientes-tabela">
@@ -36,6 +37,7 @@
     <script>
         const API_URL = '/api/clientes';
         const tabelaClientes = document.getElementById('clientes-tabela');
+        const podeEditarClientes = document.querySelector('[data-col-acoes]') !== null;
 
         function formatarEndereco(cliente) {
             const partes = [
@@ -56,9 +58,10 @@
             tabelaClientes.innerHTML = '';
 
             if (clientes.length === 0) {
+                const colunas = podeEditarClientes ? 4 : 3;
                 tabelaClientes.innerHTML = `
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-5">
+                        <td colspan="${colunas}" class="text-center text-muted py-5">
                             <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                             Nenhum cliente cadastrado.
                         </td>
@@ -68,10 +71,7 @@
 
             clientes.forEach(cliente => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${cliente.nome || '—'}</td>
-                    <td>${cliente.telefone || '—'}</td>
-                    <td>${formatarEndereco(cliente)}</td>
+                const acoes = podeEditarClientes ? `
                     <td class="text-end pe-4">
                         <a href="/clientes/editar/${cliente.id}" class="btn btn-sm btn-outline-primary me-1">
                             <i class="bi bi-pencil-fill"></i> Editar
@@ -79,7 +79,12 @@
                         <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
                             <i class="bi bi-trash-fill"></i> Excluir
                         </button>
-                    </td>
+                    </td>` : '';
+                row.innerHTML = `
+                    <td>${cliente.nome || '—'}</td>
+                    <td>${cliente.telefone || '—'}</td>
+                    <td>${formatarEndereco(cliente)}</td>
+                    ${acoes}
                 `;
                 tabelaClientes.appendChild(row);
             });
