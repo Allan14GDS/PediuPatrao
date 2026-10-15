@@ -61,7 +61,7 @@
                         </td>
                         <td>
                             <span class="badge"
-                                  th:classappend="${usuario.role == 'ADMIN'} ? 'bg-danger' : 'bg-secondary'"
+                                  th:classappend="${usuario.role != null and usuario.role.name() == 'ADMIN'} ? 'bg-danger' : 'bg-secondary'"
                                   th:text="${usuario.role}">
                             </span>
                         </td>
