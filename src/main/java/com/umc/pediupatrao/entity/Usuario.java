@@ -1,5 +1,6 @@
 package com.umc.pediupatrao.entity;
 
+import com.umc.pediupatrao.enums.Role;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,7 +10,7 @@ public class Usuario {
     private String id;
     private String username; // Nome de usuário para login
     private String password; // Senha criptografada
-    private String role;     // Papel do usuário, como ADMIN ou USER
+    private Role role;       // Papel do usuário (ADMIN, GERENTE, ATENDENTE, USER)
 
     public String getId() {
         return id;
@@ -35,11 +36,11 @@ public class Usuario {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
     

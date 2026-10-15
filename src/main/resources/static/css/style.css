@@ -18,8 +18,13 @@ body {
     text-decoration: none;
 }
 
-#sidebar a:hover {
+#sidebar a:hover,
+#sidebar button.nav-link:hover {
     background-color: #495057;
+    color: white;
+}
+
+#sidebar button.nav-link {
     color: white;
 }
 

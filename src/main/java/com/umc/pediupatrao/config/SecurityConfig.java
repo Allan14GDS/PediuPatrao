@@ -45,10 +45,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desativa CSRF para REST APIs
+                // CSRF permanece ativo por padrão (MVC e API)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/dist/**", "/plugins/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/api/usuarios").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/dist/**", "/plugins/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "GERENTE")
+                        .requestMatchers("/usuarios/**", "/api/usuarios/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
