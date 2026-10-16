@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pediu Patrão — Gestão inteligente para pizzarias</title>
+  <meta name="description" content="Controle de pedidos, clientes, status em tempo real e auditoria imutável para pizzarias e deliverys." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"DM Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            background: '#1A1715',
+            foreground: '#F7F2ED',
+            card: '#221E1B',
+            primary: { DEFAULT: '#F97316', foreground: '#1A1715' },
+            'primary-glow': '#FBBF24',
+            secondary: '#2C2724',
+            'secondary-foreground': '#F7F2ED',
+            muted: '#2C2724',
+            'muted-foreground': '#A8A29E',
+            accent: '#352D27',
+            success: '#34D399',
+            border: 'rgba(255,255,255,0.09)',
+          },
+          boxShadow: {
+            glow: '0 10px 40px -10px rgba(249,115,22,0.6)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { background-color: #1A1715; color: #F7F2ED; font-family: 'DM Sans', sans-serif; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .bg-grid {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px);
+      background-size: 48px 48px;
+      -webkit-mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+      mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #F97316, #FBBF24);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .bg-gradient-primary { background: linear-gradient(135deg, #F97316, #FBBF24); }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="relative min-h-screen overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 bg-grid"></div>
+    <div class="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"></div>
+
+    <header class="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <a href="/" class="flex items-center gap-2 font-display text-lg font-bold">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary text-primary-foreground">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+            <path d="M15 11h.01" /><path d="M11 15h.01" /><path d="M16 16h.01" /><path d="m2 16 20 6-6-20A20 20 0 0 0 2 16" />
+          </svg>
+        </span>
+        Pediu Patrão
+      </a>
+      <a href="/login" class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-semibold transition-all hover:border-primary hover:text-primary">
+        Acessar Sistema
+      </a>
+    </header>
+
+    <main class="relative">
+      <section class="mx-auto max-w-4xl px-6 pb-24 pt-20 text-center md:pt-28">
+        <span class="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
+          <span class="h-2 w-2 animate-pulse rounded-full bg-success"></span>
+          Pedidos rodando em tempo real
+        </span>
+        <h1 class="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+          Gestão inteligente para a sua <span class="text-gradient">Pizzaria</span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+          Controle o status de cada pedido, organize seus clientes e tenha auditoria completa de tudo que acontece no seu delivery.
+        </p>
+        <a href="/login" class="mt-10 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-primary px-8 py-4 font-semibold text-primary-foreground shadow-glow transition-all hover:scale-105">
+          Fazer Login
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+            <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+          </svg>
+        </a>
+      </section>
+
+      <section class="mx-auto grid max-w-6xl gap-6 px-6 pb-28 md:grid-cols-3">
+        <div class="group rounded-2xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary/50">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-gradient-primary group-hover:text-primary-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3 class="mt-6 text-xl font-semibold">Controle de Status em Tempo Real</h3>
+          <p class="mt-2 text-muted-foreground">Acompanhe cada pedido do forno à porta do cliente, sem perder nada.</p>
+        </div>
+
+        <div class="group rounded-2xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary/50">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-gradient-primary group-hover:text-primary-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <h3 class="mt-6 text-xl font-semibold">Gestão de Perfis</h3>
+          <p class="mt-2 text-muted-foreground">Permissões claras para Atendente, Gerente e Admin. Cada um vê o que precisa.</p>
+        </div>
+
+        <div class="group rounded-2xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:border-primary/50">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-gradient-primary group-hover:text-primary-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <h3 class="mt-6 text-xl font-semibold">Log de Auditoria Imutável</h3>
+          <p class="mt-2 text-muted-foreground">Toda ação registrada para sempre. Transparência total na sua operação.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative border-t border-border py-8 text-center text-sm text-muted-foreground">
+      © 2026 Pediu Patrão
+    </footer>
+  </div>
+</body>
+</html>
