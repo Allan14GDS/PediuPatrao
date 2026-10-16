@@ -61,6 +61,16 @@ A consulta em `/auditoria` está restrita a **Admin** e **Gerente**, ordenada da
 
 ---
 
+## 🛠️ Principais Alterações Realizadas
+
+Para atingir o estado atual de "Release Candidate", as seguintes evoluções foram aplicadas ao projeto base:
+- **Refatoração de Segurança:** Implementação de um modelo RBAC rigoroso no `SecurityConfig`, com proteção de rotas da API e ocultação dinâmica de elementos no Thymeleaf baseada no perfil ativo.
+- **Motor de Auditoria:** Criação do `AuditoriaService` para o registo imutável de transações críticas (alterações de estado, aplicação de descontos, cancelamentos e modificação de dados de clientes), garantindo a precisão das formatações financeiras.
+- **Regras de Negócio Avançadas:** Introdução de validações no `PedidoService` para limitar a aplicação de descontos (máximo de 20%) e restringir cancelamentos consoante o estado atual do pedido, delegando esta autoridade exclusivamente ao Gerente.
+- **Renovação UI/UX:** Desenvolvimento de uma nova Landing Page pública em *Dark Mode* e reestruturação do ecrã de autenticação (*Split Layout*) utilizando Tailwind CSS, elevando a apresentação visual a um padrão de produto SaaS comercial.
+
+---
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
