@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -48,7 +47,7 @@ public class SecurityConfig {
         http
                 // CSRF permanece ativo por padrão (MVC e API)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/dist/**", "/plugins/**", "/error").permitAll()
+                        .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/dist/**", "/plugins/**", "/error").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "GERENTE")
                         .requestMatchers("/usuarios/**", "/api/usuarios/**").hasRole("ADMIN")
@@ -67,8 +66,8 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("/pedidos", true)
                         .permitAll()
-                        .successHandler(authenticationSuccessHandler())
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -77,12 +76,5 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            response.sendRedirect("/"); // Redireciona para a página inicial após login bem-sucedido
-        };
     }
 }

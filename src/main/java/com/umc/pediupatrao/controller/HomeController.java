@@ -33,9 +33,8 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("content", "home :: content");
-        return "layout";
+    public String index() {
+        return "index";
     }
 
     // ========================
