@@ -1,8 +1,11 @@
 package com.umc.pediupatrao.entity;
 
+import com.umc.pediupatrao.enums.StatusPedido;
 import jakarta.persistence.Entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 @Document(collection = "pedidos")
 @Entity
@@ -11,9 +14,11 @@ public class Pedido {
     private String id;
     private String clienteId;
     private String tipoPizza;
-    private String status;
+    private StatusPedido status;
     private int quantidade;
     private String sabor;
+    private LocalDateTime dataHoraSaida;
+    private String responsavelSaida;
 
     public String getId() {
         return id;
@@ -39,11 +44,11 @@ public class Pedido {
         this.tipoPizza = tipoPizza;
     }
 
-    public String getStatus() {
+    public StatusPedido getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusPedido status) {
         this.status = status;
     }
 
@@ -62,6 +67,20 @@ public class Pedido {
     public void setSabor(String sabor) {
         this.sabor = sabor;
     }
-    
-    
+
+    public LocalDateTime getDataHoraSaida() {
+        return dataHoraSaida;
+    }
+
+    public void setDataHoraSaida(LocalDateTime dataHoraSaida) {
+        this.dataHoraSaida = dataHoraSaida;
+    }
+
+    public String getResponsavelSaida() {
+        return responsavelSaida;
+    }
+
+    public void setResponsavelSaida(String responsavelSaida) {
+        this.responsavelSaida = responsavelSaida;
+    }
 }

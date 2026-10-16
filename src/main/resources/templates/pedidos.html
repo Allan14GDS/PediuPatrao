@@ -56,11 +56,16 @@
                         <td th:text="${pedido.quantidade}"></td>
                         <td>
                             <span class="badge"
-                                  th:classappend="${pedido.status == 'ENTREGUE'} ? 'bg-success' :
-                                                  (${pedido.status == 'CANCELADO'} ? 'bg-danger' :
-                                                  (${pedido.status == 'EM_PREPARO'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                                  th:if="${pedido.status != null}"
+                                  th:classappend="${pedido.status.name() == 'FINALIZADO'} ? 'bg-success' :
+                                                  (${pedido.status.name() == 'CANCELADO'} ? 'bg-danger' :
+                                                  (${pedido.status.name() == 'EM_PREPARACAO'} ? 'bg-warning text-dark' :
+                                                  (${pedido.status.name() == 'PRONTO'} ? 'bg-info' :
+                                                  (${pedido.status.name() == 'SAIU_PARA_ENTREGA'} ? 'bg-primary' :
+                                                  (${pedido.status.name() == 'RETIRADO'} ? 'bg-primary' : 'bg-secondary')))))"
                                   th:text="${pedido.status}">
                             </span>
+                            <span class="badge bg-light text-muted" th:if="${pedido.status == null}">—</span>
                         </td>
                     </tr>
                 </tbody>

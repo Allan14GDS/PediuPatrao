@@ -1,9 +1,11 @@
 package com.umc.pediupatrao.controller;
 
 import com.umc.pediupatrao.entity.Pedido;
+import com.umc.pediupatrao.enums.StatusPedido;
 import com.umc.pediupatrao.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -24,9 +26,8 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}/status")
-    public Pedido atualizarStatus(@PathVariable String id, @RequestParam String status) {
-        return pedidoService.atualizarStatus(id, status);
+    public Pedido avancarStatus(@PathVariable String id, @RequestParam StatusPedido novoStatus) {
+        return pedidoService.avancarStatus(id, novoStatus);
     }
-    
-    
+
 }
