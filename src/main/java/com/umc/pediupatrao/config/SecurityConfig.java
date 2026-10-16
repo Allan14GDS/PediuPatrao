@@ -48,7 +48,7 @@ public class SecurityConfig {
         http
                 // CSRF permanece ativo por padrão (MVC e API)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/dist/**", "/plugins/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/dist/**", "/plugins/**", "/error").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "GERENTE")
                         .requestMatchers("/usuarios/**", "/api/usuarios/**").hasRole("ADMIN")
@@ -57,9 +57,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/clientes").hasRole("ATENDENTE")
                         .requestMatchers(HttpMethod.PUT, "/api/clientes/**").hasRole("ATENDENTE")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ATENDENTE")
-                        .requestMatchers(HttpMethod.GET, "/pedidos", "/pedidos/novo", "/api/pedidos").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
-                        .requestMatchers(HttpMethod.POST, "/pedidos/salvar").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
-                        .requestMatchers(HttpMethod.POST, "/api/pedidos").hasRole("ATENDENTE")
+                        .requestMatchers(HttpMethod.GET, "/pedidos", "/api/pedidos").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
+                        .requestMatchers(HttpMethod.GET, "/pedidos/novo").hasAnyRole("ATENDENTE", "GERENTE")
+                        .requestMatchers(HttpMethod.POST, "/pedidos/salvar", "/api/pedidos").hasAnyRole("ATENDENTE", "GERENTE")
                         .requestMatchers(HttpMethod.PUT, "/api/pedidos/*/status").hasAnyRole("ADMIN", "GERENTE", "ATENDENTE")
                         .requestMatchers(HttpMethod.POST, "/api/pedidos/*/cancelar", "/api/pedidos/*/desconto").hasAnyRole("GERENTE", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/auditoria", "/api/auditoria").hasAnyRole("ADMIN", "GERENTE")

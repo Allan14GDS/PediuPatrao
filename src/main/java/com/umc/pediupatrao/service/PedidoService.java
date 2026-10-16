@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PedidoService {
@@ -57,7 +58,8 @@ public class PedidoService {
         if (pedido.getDesconto() == null) {
             pedido.setDesconto(0.0);
         }
-        pedido.setValorTotal(valorBruto - pedido.getDesconto());
+        pedido.setDesconto(arredondarMonetario(pedido.getDesconto()));
+        pedido.setValorTotal(arredondarMonetario(valorBruto - pedido.getDesconto()));
 
         ItemPedido primeiro = itensValidos.get(0);
         if (pedido.getTipoPizza() == null || pedido.getTipoPizza().isBlank()) {
@@ -153,10 +155,12 @@ public class PedidoService {
             }
         }
 
-        String descontoAnterior = pedido.getDesconto() != null ? String.valueOf(pedido.getDesconto()) : "0";
-        double desconto = valorBruto * (percentual / 100.0);
+        String descontoAnterior = pedido.getDesconto() != null
+                ? String.format(Locale.US, "%.2f", pedido.getDesconto())
+                : "0.00";
+        double desconto = arredondarMonetario(valorBruto * (percentual / 100.0));
         pedido.setDesconto(desconto);
-        pedido.setValorTotal(valorBruto - desconto);
+        pedido.setValorTotal(arredondarMonetario(valorBruto - desconto));
         Pedido salvo = pedidoRepository.save(pedido);
         auditoriaService.registrar(
                 "APLICAÇÃO DE DESCONTO",
@@ -164,10 +168,14 @@ public class PedidoService {
                 salvo.getId(),
                 "desconto",
                 descontoAnterior,
-                String.valueOf(salvo.getDesconto()),
+                String.format(Locale.US, "%.2f", salvo.getDesconto()),
                 null
         );
         return salvo;
+    }
+
+    private double arredondarMonetario(double valor) {
+        return Double.parseDouble(String.format(Locale.US, "%.2f", valor));
     }
 
     private String resumoPedido(Pedido pedido) {
