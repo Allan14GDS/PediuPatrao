@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Lista de Pedidos</title>
 </head>
@@ -11,6 +12,10 @@
         <h2 class="fw-bold mb-0">
             <i class="bi bi-bag me-2 text-primary"></i>Pedidos
         </h2>
+        <a href="/pedidos/novo" class="btn btn-primary"
+           sec:authorize="hasAnyRole('ATENDENTE', 'GERENTE', 'ADMIN')">
+            <i class="bi bi-plus-lg me-1"></i> Novo Pedido
+        </a>
     </div>
 
     <!-- Mensagens de feedback -->
@@ -36,13 +41,15 @@
                         <th>Tipo de Pizza</th>
                         <th>Sabor</th>
                         <th>Quantidade</th>
+                        <th class="text-end">Total</th>
                         <th>Status</th>
+                        <th class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Lista vazia -->
                     <tr th:if="${#lists.isEmpty(pedidos)}">
-                        <td colspan="6" class="text-center text-muted py-5">
+                        <td colspan="8" class="text-center text-muted py-5">
                             <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                             Nenhum pedido encontrado.
                         </td>
@@ -54,13 +61,63 @@
                         <td th:text="${pedido.tipoPizza}"></td>
                         <td th:text="${pedido.sabor}"></td>
                         <td th:text="${pedido.quantidade}"></td>
+                        <td class="text-end fw-medium text-nowrap">
+                            <span th:text="${pedido.valorTotal != null}
+                                ? |R$ ${#numbers.formatDecimal(pedido.valorTotal, 1, 'POINT', 2, 'COMMA')}|
+                                : 'R$ 0,00'"></span>
+                        </td>
                         <td>
                             <span class="badge"
-                                  th:classappend="${pedido.status == 'ENTREGUE'} ? 'bg-success' :
-                                                  (${pedido.status == 'CANCELADO'} ? 'bg-danger' :
-                                                  (${pedido.status == 'EM_PREPARO'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                                  th:if="${pedido.status != null}"
+                                  th:classappend="${pedido.status.name() == 'FINALIZADO'} ? 'bg-success' :
+                                                  (${pedido.status.name() == 'CANCELADO'} ? 'bg-danger' :
+                                                  (${pedido.status.name() == 'EM_PREPARACAO'} ? 'bg-warning text-dark' :
+                                                  (${pedido.status.name() == 'PRONTO'} ? 'bg-info text-dark' :
+                                                  (${pedido.status.name() == 'SAIU_PARA_ENTREGA'} ? 'bg-primary' :
+                                                  (${pedido.status.name() == 'RETIRADO'} ? 'bg-primary' : 'bg-secondary')))))"
                                   th:text="${pedido.status}">
                             </span>
+                            <span class="badge bg-light text-muted" th:if="${pedido.status == null}">—</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        sec:authorize="hasAnyRole('ATENDENTE', 'GERENTE', 'ADMIN')"
+                                        th:if="${pedido.status != null
+                                            and pedido.status.name() != 'FINALIZADO'
+                                            and pedido.status.name() != 'CANCELADO'}"
+                                        th:attr="data-pedido-id=${pedido.id}, data-status=${pedido.status.name()}"
+                                        onclick="avancarStatus(this)">
+                                    <i class="bi bi-arrow-right-circle me-1"></i>Avançar Status
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-warning"
+                                        sec:authorize="hasAnyRole('GERENTE', 'ADMIN')"
+                                        th:if="${pedido.status != null
+                                            and (pedido.status.name() == 'RECEBIDO'
+                                              or pedido.status.name() == 'EM_PREPARACAO'
+                                              or pedido.status.name() == 'PRONTO')}"
+                                        th:attr="data-pedido-id=${pedido.id},
+                                                 data-valor-total=${pedido.valorTotal != null ? pedido.valorTotal : 0},
+                                                 data-desconto=${pedido.desconto != null ? pedido.desconto : 0}"
+                                        onclick="abrirModalDesconto(this)">
+                                    <i class="bi bi-percent me-1"></i>Desconto
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        sec:authorize="hasAnyRole('GERENTE', 'ADMIN')"
+                                        th:if="${pedido.status != null
+                                            and (pedido.status.name() == 'RECEBIDO'
+                                              or pedido.status.name() == 'EM_PREPARACAO'
+                                              or pedido.status.name() == 'PRONTO')}"
+                                        th:attr="data-pedido-id=${pedido.id}"
+                                        onclick="abrirModalCancelar(this)">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -70,6 +127,248 @@
             Total: <strong th:text="${#lists.size(pedidos)}"></strong> pedido(s)
         </div>
     </div>
+
+    <!-- Modal Desconto -->
+    <div class="modal fade" id="modalDesconto" tabindex="-1" aria-labelledby="modalDescontoLabel" aria-hidden="true"
+         sec:authorize="hasAnyRole('GERENTE', 'ADMIN')">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDescontoLabel">
+                        <i class="bi bi-percent me-1"></i>Aplicar desconto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="descontoPedidoId"/>
+                    <input type="hidden" id="descontoValorBruto"/>
+
+                    <div class="rounded border bg-light p-3 mb-3">
+                        <div class="small text-muted mb-1">Valor atual do pedido</div>
+                        <div class="fs-4 fw-bold" id="descontoValorAtual">R$ 0,00</div>
+                    </div>
+
+                    <label for="descontoPercentual" class="form-label fw-medium">Percentual (máx. 20%)</label>
+                    <div class="input-group">
+                        <input type="number" id="descontoPercentual" class="form-control"
+                               min="0" step="0.5" value="10" required/>
+                        <span class="input-group-text">%</span>
+                    </div>
+
+                    <div id="avisoDescontoLimite" class="alert alert-warning d-flex align-items-start gap-2 mt-3 mb-0 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                        <div>
+                            <strong>Percentual acima do limite.</strong>
+                            O desconto máximo permitido é de 20%.
+                        </div>
+                    </div>
+
+                    <div class="rounded border border-success-subtle bg-success-subtle p-3 mt-3">
+                        <div class="small text-muted mb-1">Valor com desconto</div>
+                        <div class="fs-5 fw-bold text-success" id="descontoNovoTotal">Novo Total: R$ 0,00</div>
+                    </div>
+
+                    <div class="form-text mt-3">O desconto só pode ser aplicado enquanto o pedido ainda não saiu.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-warning" id="btnAplicarDesconto" onclick="aplicarDesconto()">
+                        Aplicar desconto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cancelar -->
+    <div class="modal fade" id="modalCancelar" tabindex="-1" aria-labelledby="modalCancelarLabel" aria-hidden="true"
+         sec:authorize="hasAnyRole('GERENTE', 'ADMIN')">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCancelarLabel">
+                        <i class="bi bi-x-circle me-1"></i>Cancelar pedido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="cancelarPedidoId"/>
+                    <label for="cancelarJustificativa" class="form-label fw-medium">Justificativa</label>
+                    <textarea id="cancelarJustificativa" class="form-control" rows="3"
+                              placeholder="Informe o motivo do cancelamento" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-danger" onclick="cancelarPedido()">
+                        Confirmar cancelamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PROXIMO_STATUS = {
+            RECEBIDO: 'EM_PREPARACAO',
+            EM_PREPARACAO: 'PRONTO',
+            PRONTO: 'SAIU_PARA_ENTREGA',
+            SAIU_PARA_ENTREGA: 'FINALIZADO',
+            RETIRADO: 'FINALIZADO'
+        };
+
+        function csrfHeaders(json) {
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const headers = { [header]: token };
+            if (json) {
+                headers['Content-Type'] = 'application/json';
+            }
+            return headers;
+        }
+
+        async function lerMensagemErro(response, fallback) {
+            try {
+                const data = await response.json();
+                return data.message || data.error || fallback;
+            } catch (e) {
+                if (response.status === 403) {
+                    return 'Você não tem permissão para esta ação.';
+                }
+                return fallback;
+            }
+        }
+
+        function recarregarLista() {
+            window.location.href = '/pedidos';
+        }
+
+        function formatarMoeda(valor) {
+            const numero = Number.isFinite(valor) ? valor : 0;
+            return 'R$ ' + numero.toFixed(2).replace('.', ',');
+        }
+
+        function atualizarPreviewDesconto() {
+            const input = document.getElementById('descontoPercentual');
+            const aviso = document.getElementById('avisoDescontoLimite');
+            const novoTotalEl = document.getElementById('descontoNovoTotal');
+            const btn = document.getElementById('btnAplicarDesconto');
+            if (!input || !aviso || !novoTotalEl || !btn) {
+                return;
+            }
+
+            const percentual = parseFloat(input.value);
+            const bruto = parseFloat(document.getElementById('descontoValorBruto').value || '0');
+
+            if (Number.isNaN(percentual) || percentual < 0) {
+                aviso.classList.add('d-none');
+                novoTotalEl.textContent = 'Novo Total: —';
+                btn.disabled = true;
+                return;
+            }
+
+            if (percentual > 20) {
+                aviso.classList.remove('d-none');
+                novoTotalEl.textContent = 'Novo Total: —';
+                btn.disabled = true;
+                return;
+            }
+
+            aviso.classList.add('d-none');
+            btn.disabled = false;
+            const novoTotal = bruto * (1 - (percentual / 100));
+            novoTotalEl.textContent = 'Novo Total: ' + formatarMoeda(novoTotal);
+        }
+
+        async function avancarStatus(botao) {
+            const id = botao.dataset.pedidoId;
+            const atual = botao.dataset.status;
+            const proximo = PROXIMO_STATUS[atual];
+            if (!proximo) {
+                alert('Este pedido não pode mais avançar de status.');
+                return;
+            }
+            if (!confirm('Avançar o pedido para ' + proximo.replaceAll('_', ' ') + '?')) {
+                return;
+            }
+
+            const response = await fetch(`/api/pedidos/${id}/status?status=${encodeURIComponent(proximo)}`, {
+                method: 'PUT',
+                headers: csrfHeaders(false)
+            });
+
+            if (response.ok) {
+                recarregarLista();
+            } else {
+                alert(await lerMensagemErro(response, 'Não foi possível avançar o status.'));
+            }
+        }
+
+        function abrirModalDesconto(botao) {
+            const valorAtual = parseFloat(botao.dataset.valorTotal || '0');
+            const descontoAtual = parseFloat(botao.dataset.desconto || '0');
+            const valorBruto = valorAtual + descontoAtual;
+            document.getElementById('descontoPedidoId').value = botao.dataset.pedidoId;
+            document.getElementById('descontoValorBruto').value = String(valorBruto);
+            document.getElementById('descontoValorAtual').textContent = formatarMoeda(valorAtual);
+            document.getElementById('descontoPercentual').value = '10';
+            atualizarPreviewDesconto();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDesconto')).show();
+        }
+
+        function abrirModalCancelar(botao) {
+            document.getElementById('cancelarPedidoId').value = botao.dataset.pedidoId;
+            document.getElementById('cancelarJustificativa').value = '';
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCancelar')).show();
+        }
+
+        async function aplicarDesconto() {
+            const id = document.getElementById('descontoPedidoId').value;
+            const percentual = parseFloat(document.getElementById('descontoPercentual').value);
+            if (Number.isNaN(percentual) || percentual < 0 || percentual > 20) {
+                alert('Informe um percentual entre 0 e 20.');
+                return;
+            }
+
+            const response = await fetch(`/api/pedidos/${id}/desconto`, {
+                method: 'POST',
+                headers: csrfHeaders(true),
+                body: JSON.stringify({ percentual })
+            });
+
+            if (response.ok) {
+                recarregarLista();
+            } else {
+                alert(await lerMensagemErro(response, 'Não foi possível aplicar o desconto.'));
+            }
+        }
+
+        async function cancelarPedido() {
+            const id = document.getElementById('cancelarPedidoId').value;
+            const justificativa = document.getElementById('cancelarJustificativa').value.trim();
+            if (!justificativa) {
+                alert('Informe a justificativa do cancelamento.');
+                return;
+            }
+
+            const response = await fetch(`/api/pedidos/${id}/cancelar`, {
+                method: 'POST',
+                headers: csrfHeaders(true),
+                body: JSON.stringify({ justificativa })
+            });
+
+            if (response.ok) {
+                recarregarLista();
+            } else {
+                alert(await lerMensagemErro(response, 'Não foi possível cancelar o pedido.'));
+            }
+        }
+
+        const inputDescontoPercentual = document.getElementById('descontoPercentual');
+        if (inputDescontoPercentual) {
+            inputDescontoPercentual.addEventListener('input', atualizarPreviewDesconto);
+            inputDescontoPercentual.addEventListener('change', atualizarPreviewDesconto);
+        }
+    </script>
 
 </div>
 

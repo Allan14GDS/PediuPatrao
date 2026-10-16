@@ -6,6 +6,8 @@ import com.umc.pediupatrao.enums.StatusPedido;
 import com.umc.pediupatrao.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +20,53 @@ public class PedidoService {
     private AuditoriaService auditoriaService;
 
     public Pedido criarPedido(Pedido pedido) {
+        List<ItemPedido> itensValidos = new ArrayList<>();
+        if (pedido.getItens() != null) {
+            for (ItemPedido item : pedido.getItens()) {
+                if (item == null) {
+                    continue;
+                }
+                boolean temDescricao = item.getNomeProduto() != null && !item.getNomeProduto().isBlank();
+                boolean temQuantidade = item.getQuantidade() > 0;
+                boolean temPreco = item.getPrecoUnitario() != null && item.getPrecoUnitario() > 0;
+                if (temDescricao && temQuantidade && temPreco) {
+                    item.setNomeProduto(item.getNomeProduto().trim());
+                    itensValidos.add(item);
+                }
+            }
+        }
+
+        if (itensValidos.isEmpty()) {
+            throw new IllegalArgumentException("O pedido deve conter ao menos um item.");
+        }
+
+        pedido.setItens(itensValidos);
+
+        if (pedido.getStatus() == null) {
+            pedido.setStatus(StatusPedido.RECEBIDO);
+        }
+
+        double valorBruto = 0.0;
+        int quantidadeTotal = 0;
+        for (ItemPedido item : itensValidos) {
+            valorBruto += item.getQuantidade() * item.getPrecoUnitario();
+            quantidadeTotal += item.getQuantidade();
+        }
+
+        pedido.setQuantidade(quantidadeTotal);
+        if (pedido.getDesconto() == null) {
+            pedido.setDesconto(0.0);
+        }
+        pedido.setValorTotal(valorBruto - pedido.getDesconto());
+
+        ItemPedido primeiro = itensValidos.get(0);
+        if (pedido.getTipoPizza() == null || pedido.getTipoPizza().isBlank()) {
+            pedido.setTipoPizza(primeiro.getNomeProduto());
+        }
+        if (pedido.getSabor() == null || pedido.getSabor().isBlank()) {
+            pedido.setSabor(primeiro.getNomeProduto());
+        }
+
         Pedido salvo = pedidoRepository.save(pedido);
         auditoriaService.registrar(
                 "INCLUSÃO DE PEDIDO",

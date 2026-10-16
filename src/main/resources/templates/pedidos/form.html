@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Novo Pedido</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/pedidos" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h2 class="fw-bold mb-0">Novo Pedido</h2>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${erro}" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+            <form th:action="@{/pedidos/salvar}" th:object="${pedido}" method="post" id="formPedido">
+
+                <div class="mb-4" style="max-width: 520px;">
+                    <label for="clienteId" class="form-label fw-medium">
+                        <i class="bi bi-person me-1"></i>Cliente
+                    </label>
+                    <select id="clienteId"
+                            class="form-select"
+                            th:field="*{clienteId}"
+                            required>
+                        <option value="">Selecione o cliente</option>
+                        <option th:each="cliente : ${clientes}"
+                                th:value="${cliente.id}"
+                                th:text="${cliente.nome}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="fw-medium mb-0">
+                        <i class="bi bi-basket me-1"></i>Itens do pedido
+                    </p>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnAdicionarItem">
+                        <i class="bi bi-plus-lg me-1"></i> Adicionar item
+                    </button>
+                </div>
+
+                <div class="table-responsive mb-3">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Tipo de Pizza / Sabor</th>
+                                <th style="width: 140px;">Quantidade</th>
+                                <th style="width: 180px;">Preço Unitário</th>
+                                <th class="text-end" style="width: 90px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itens-body">
+                            <tr class="item-row" th:each="item, iter : ${pedido.itens}">
+                                <td>
+                                    <input type="text"
+                                           class="form-control"
+                                           data-field="nomeProduto"
+                                           th:name="'itens[' + ${iter.index} + '].nomeProduto'"
+                                           placeholder="Ex: Pizza Grande Calabresa"
+                                           required/>
+                                </td>
+                                <td>
+                                    <input type="number"
+                                           class="form-control item-quantidade"
+                                           data-field="quantidade"
+                                           th:name="'itens[' + ${iter.index} + '].quantidade'"
+                                           min="1"
+                                           value="1"
+                                           required/>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <input type="number"
+                                               class="form-control item-preco"
+                                               data-field="precoUnitario"
+                                               th:name="'itens[' + ${iter.index} + '].precoUnitario'"
+                                               min="0.01"
+                                               step="0.01"
+                                               placeholder="0,00"
+                                               required/>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-remover-item">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="text-muted small mb-4" id="totalPedido">Total: R$ 0,00</p>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Salvar Pedido
+                    </button>
+                    <a href="/pedidos" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <template id="item-row-template">
+        <tr class="item-row">
+            <td>
+                <input type="text"
+                       class="form-control"
+                       data-field="nomeProduto"
+                       placeholder="Ex: Pizza Grande Calabresa"
+                       required/>
+            </td>
+            <td>
+                <input type="number"
+                       class="form-control item-quantidade"
+                       data-field="quantidade"
+                       min="1"
+                       value="1"
+                       required/>
+            </td>
+            <td>
+                <div class="input-group">
+                    <span class="input-group-text">R$</span>
+                    <input type="number"
+                           class="form-control item-preco"
+                           data-field="precoUnitario"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="0,00"
+                           required/>
+                </div>
+            </td>
+            <td class="text-end">
+                <button type="button" class="btn btn-outline-danger btn-sm btn-remover-item">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </template>
+
+    <script>
+        const itensBody = document.getElementById('itens-body');
+        const template = document.getElementById('item-row-template');
+        const formPedido = document.getElementById('formPedido');
+        const totalPedido = document.getElementById('totalPedido');
+
+        function reindexarItens() {
+            itensBody.querySelectorAll('tr.item-row').forEach((row, index) => {
+                row.querySelectorAll('[data-field]').forEach(input => {
+                    input.name = `itens[${index}].${input.dataset.field}`;
+                });
+            });
+        }
+
+        function atualizarTotal() {
+            let total = 0;
+            itensBody.querySelectorAll('tr.item-row').forEach(row => {
+                const quantidade = parseFloat(row.querySelector('.item-quantidade')?.value || '0');
+                const preco = parseFloat(row.querySelector('.item-preco')?.value || '0');
+                if (quantidade > 0 && preco > 0) {
+                    total += quantidade * preco;
+                }
+            });
+            totalPedido.textContent = 'Total: R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        function adicionarItem() {
+            const clone = template.content.cloneNode(true);
+            itensBody.appendChild(clone);
+            reindexarItens();
+            atualizarTotal();
+        }
+
+        function removerItem(botao) {
+            const linhas = itensBody.querySelectorAll('tr.item-row');
+            if (linhas.length <= 1) {
+                alert('O pedido deve conter ao menos um item.');
+                return;
+            }
+            botao.closest('tr').remove();
+            reindexarItens();
+            atualizarTotal();
+        }
+
+        document.getElementById('btnAdicionarItem').addEventListener('click', adicionarItem);
+
+        itensBody.addEventListener('click', function (event) {
+            const botao = event.target.closest('.btn-remover-item');
+            if (botao) {
+                removerItem(botao);
+            }
+        });
+
+        itensBody.addEventListener('input', function (event) {
+            if (event.target.classList.contains('item-quantidade')
+                    || event.target.classList.contains('item-preco')) {
+                atualizarTotal();
+            }
+        });
+
+        formPedido.addEventListener('submit', function (event) {
+            reindexarItens();
+            if (itensBody.querySelectorAll('tr.item-row').length === 0) {
+                event.preventDefault();
+                alert('Adicione ao menos um item antes de salvar.');
+            }
+        });
+
+        reindexarItens();
+        atualizarTotal();
+    </script>
+
+</div>
+
+</body>
+</html>
