@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Auditoria</title>
+</head>
+<body>
+
+<div th:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-journal-text me-2 text-primary"></i>Auditoria
+        </h2>
+    </div>
+
+    <p class="text-muted">Registo imutável das alterações sensíveis de pedidos e clientes. Esta listagem é apenas de consulta.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">Data/Hora</th>
+                            <th>Usuário</th>
+                            <th>Perfil</th>
+                            <th>Operação</th>
+                            <th>Entidade</th>
+                            <th>ID</th>
+                            <th>Campos</th>
+                            <th>Valor anterior</th>
+                            <th>Novo valor</th>
+                            <th>Justificativa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(auditorias)}">
+                            <td colspan="10" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                Nenhum registo de auditoria encontrado.
+                            </td>
+                        </tr>
+                        <tr th:each="auditoria : ${auditorias}">
+                            <td class="ps-4 text-nowrap"
+                                th:text="${auditoria.dataHora != null} ? ${#temporals.format(auditoria.dataHora, 'dd/MM/yyyy HH:mm:ss')} : '—'">
+                            </td>
+                            <td th:text="${auditoria.usuario}">—</td>
+                            <td>
+                                <span class="badge bg-secondary" th:text="${auditoria.perfil}">—</span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${auditoria.operacao != null and auditoria.operacao.contains('CANCELAMENTO')} ? 'bg-danger' :
+                                                      (${auditoria.operacao != null and auditoria.operacao.contains('DESCONTO')} ? 'bg-warning text-dark' :
+                                                      (${auditoria.operacao != null and auditoria.operacao.contains('INCLUSÃO')} ? 'bg-success' : 'bg-primary'))"
+                                      th:text="${auditoria.operacao}">
+                                </span>
+                            </td>
+                            <td th:text="${auditoria.entidade}">—</td>
+                            <td class="text-muted small" th:text="${auditoria.entidadeId}">—</td>
+                            <td th:text="${auditoria.camposAlterados} ?: '—'">—</td>
+                            <td class="small" th:text="${auditoria.valorAnterior} ?: '—'">—</td>
+                            <td class="small" th:text="${auditoria.novoValor} ?: '—'">—</td>
+                            <td th:text="${auditoria.justificativa} ?: '—'">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted small" th:if="${!#lists.isEmpty(auditorias)}">
+            Total: <strong th:text="${#lists.size(auditorias)}"></strong> registo(s)
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -14,8 +14,21 @@ public class PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    @Autowired
+    private AuditoriaService auditoriaService;
+
     public Pedido criarPedido(Pedido pedido) {
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        auditoriaService.registrar(
+                "INCLUSÃO DE PEDIDO",
+                "Pedido",
+                salvo.getId(),
+                "pedido",
+                null,
+                resumoPedido(salvo),
+                null
+        );
+        return salvo;
     }
 
     public List<Pedido> listarPedidos() {
@@ -23,9 +36,24 @@ public class PedidoService {
     }
 
     public Pedido atualizarStatus(String id, String status) {
+        return avancarStatus(id, status);
+    }
+
+    public Pedido avancarStatus(String id, String status) {
         Pedido pedido = pedidoRepository.findById(id).orElseThrow();
+        String statusAnterior = pedido.getStatus() != null ? pedido.getStatus().name() : null;
         pedido.setStatus(StatusPedido.valueOf(status));
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        auditoriaService.registrar(
+                "ALTERAÇÃO DE STATUS",
+                "Pedido",
+                salvo.getId(),
+                "status",
+                statusAnterior,
+                salvo.getStatus().name(),
+                null
+        );
+        return salvo;
     }
 
     public Pedido cancelarPedido(String id, String justificativa) {
@@ -39,9 +67,20 @@ public class PedidoService {
                     "O pedido não pode mais ser cancelado, pois já saiu para entrega ou foi finalizado/cancelado.");
         }
 
+        String statusAnterior = statusAtual != null ? statusAtual.name() : null;
         pedido.setStatus(StatusPedido.CANCELADO);
         pedido.setJustificativaCancelamento(justificativa);
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        auditoriaService.registrar(
+                "CANCELAMENTO DE PEDIDO",
+                "Pedido",
+                salvo.getId(),
+                "status",
+                statusAnterior,
+                "CANCELADO",
+                justificativa
+        );
+        return salvo;
     }
 
     public Pedido aplicarDesconto(String id, Double percentual) {
@@ -65,10 +104,27 @@ public class PedidoService {
             }
         }
 
+        String descontoAnterior = pedido.getDesconto() != null ? String.valueOf(pedido.getDesconto()) : "0";
         double desconto = valorBruto * (percentual / 100.0);
         pedido.setDesconto(desconto);
         pedido.setValorTotal(valorBruto - desconto);
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        auditoriaService.registrar(
+                "APLICAÇÃO DE DESCONTO",
+                "Pedido",
+                salvo.getId(),
+                "desconto",
+                descontoAnterior,
+                String.valueOf(salvo.getDesconto()),
+                null
+        );
+        return salvo;
+    }
+
+    private String resumoPedido(Pedido pedido) {
+        String status = pedido.getStatus() != null ? pedido.getStatus().name() : "";
+        String cliente = pedido.getClienteId() != null ? pedido.getClienteId() : "";
+        return "status=" + status + ", clienteId=" + cliente;
     }
 
 }
