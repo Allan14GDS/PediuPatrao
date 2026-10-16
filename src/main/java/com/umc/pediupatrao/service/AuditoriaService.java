@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AuditoriaService {
@@ -46,14 +47,31 @@ public class AuditoriaService {
         auditoria.setEntidade(entidade);
         auditoria.setEntidadeId(entidadeId);
         auditoria.setCamposAlterados(camposAlterados);
-        auditoria.setValorAnterior(valorAnterior);
-        auditoria.setNovoValor(novoValor);
+        auditoria.setValorAnterior(formatarValorAuditoria(valorAnterior));
+        auditoria.setNovoValor(formatarValorAuditoria(novoValor));
         auditoria.setJustificativa(justificativa);
 
         auditoriaRepository.save(auditoria);
     }
 
     public List<Auditoria> listarTodas() {
-        return auditoriaRepository.findAll(Sort.by(Sort.Direction.DESC, "dataHora"));
+        List<Auditoria> registros = auditoriaRepository.findAll(Sort.by(Sort.Direction.DESC, "dataHora"));
+        for (Auditoria auditoria : registros) {
+            auditoria.setValorAnterior(formatarValorAuditoria(auditoria.getValorAnterior()));
+            auditoria.setNovoValor(formatarValorAuditoria(auditoria.getNovoValor()));
+        }
+        return registros;
+    }
+
+    private String formatarValorAuditoria(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return valor;
+        }
+        try {
+            double numero = Double.parseDouble(valor.trim());
+            return String.format(Locale.US, "%.2f", numero);
+        } catch (NumberFormatException e) {
+            return valor;
+        }
     }
 }

@@ -13,7 +13,7 @@
             <i class="bi bi-bag me-2 text-primary"></i>Pedidos
         </h2>
         <a href="/pedidos/novo" class="btn btn-primary"
-           sec:authorize="hasAnyRole('ATENDENTE', 'GERENTE', 'ADMIN')">
+           sec:authorize="hasAnyRole('ATENDENTE', 'GERENTE')">
             <i class="bi bi-plus-lg me-1"></i> Novo Pedido
         </a>
     </div>
