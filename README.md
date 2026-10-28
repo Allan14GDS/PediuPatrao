@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🍕 Pediu Patrão
 
 Sistema **SaaS web responsivo** para a gestão inteligente de pizzarias e operações de delivery. Centraliza pedidos, clientes, cardápio, equipa e rastreio operacional num único painel, com controlo de acesso por perfil e registo de auditoria das operações críticas.
@@ -140,7 +139,6 @@ MongoDB  (pedidos, clientes, produtos, usuarios, auditorias)
 ```
 
 Pacote base: `com.umc.pediupatrao`. Classe de arranque: `PizzariaPedidosApplication`.
-=======
 # 🍕 Pediu Patrão
 
 Sistema **SaaS web responsivo** para a gestão inteligente de pizzarias e operações de delivery. Centraliza pedidos, clientes, cardápio, equipa e rastreio operacional num único painel, com controlo de acesso por perfil e registo de auditoria das operações críticas.
@@ -282,4 +280,3 @@ MongoDB  (pedidos, clientes, produtos, usuarios, auditorias)
 ```
 
 Pacote base: `com.umc.pediupatrao`. Classe de arranque: `PizzariaPedidosApplication`.
->>>>>>> c3bd85a206cb87c8802b30fc1ef92c93dc923b2a
