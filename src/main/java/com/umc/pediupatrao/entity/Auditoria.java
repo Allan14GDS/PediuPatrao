@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Document(collection = "auditorias")
 public class Auditoria {
@@ -19,6 +20,8 @@ public class Auditoria {
     private String camposAlterados;
     private String valorAnterior;
     private String novoValor;
+    private Map<String, String> valoresAnteriores;
+    private Map<String, String> valoresNovos;
     private String justificativa;
 
     public Auditoria() {
@@ -119,6 +122,22 @@ public class Auditoria {
 
     public void setNovoValor(String novoValor) {
         this.novoValor = novoValor;
+    }
+
+    public Map<String, String> getValoresAnteriores() {
+        return valoresAnteriores;
+    }
+
+    public void setValoresAnteriores(Map<String, String> valoresAnteriores) {
+        this.valoresAnteriores = valoresAnteriores;
+    }
+
+    public Map<String, String> getValoresNovos() {
+        return valoresNovos;
+    }
+
+    public void setValoresNovos(Map<String, String> valoresNovos) {
+        this.valoresNovos = valoresNovos;
     }
 
     public String getJustificativa() {

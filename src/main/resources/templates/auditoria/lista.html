@@ -28,8 +28,8 @@
                             <th>Entidade</th>
                             <th>ID</th>
                             <th>Campos</th>
-                            <th>Valor anterior</th>
-                            <th>Novo valor</th>
+                            <th>Valores anteriores</th>
+                            <th>Valores novos</th>
                             <th>Justificativa</th>
                         </tr>
                     </thead>
@@ -59,8 +59,24 @@
                             <td th:text="${auditoria.entidade}">—</td>
                             <td class="text-muted small" th:text="${auditoria.entidadeId}">—</td>
                             <td th:text="${auditoria.camposAlterados} ?: '—'">—</td>
-                            <td class="small" th:text="${auditoria.valorAnterior} ?: '—'">—</td>
-                            <td class="small" th:text="${auditoria.novoValor} ?: '—'">—</td>
+                            <td class="small">
+                                <div th:if="${auditoria.valoresAnteriores != null and !auditoria.valoresAnteriores.isEmpty()}"
+                                     th:each="entrada : ${auditoria.valoresAnteriores}">
+                                    <span class="text-muted" th:text="${entrada.key}">campo</span>:
+                                    <span th:text="${entrada.value}">valor</span>
+                                </div>
+                                <span th:if="${auditoria.valoresAnteriores == null or auditoria.valoresAnteriores.isEmpty()}"
+                                      th:text="${auditoria.valorAnterior} ?: '—'">—</span>
+                            </td>
+                            <td class="small">
+                                <div th:if="${auditoria.valoresNovos != null and !auditoria.valoresNovos.isEmpty()}"
+                                     th:each="entrada : ${auditoria.valoresNovos}">
+                                    <span class="text-muted" th:text="${entrada.key}">campo</span>:
+                                    <span th:text="${entrada.value}">valor</span>
+                                </div>
+                                <span th:if="${auditoria.valoresNovos == null or auditoria.valoresNovos.isEmpty()}"
+                                      th:text="${auditoria.novoValor} ?: '—'">—</span>
+                            </td>
                             <td th:text="${auditoria.justificativa} ?: '—'">—</td>
                         </tr>
                     </tbody>

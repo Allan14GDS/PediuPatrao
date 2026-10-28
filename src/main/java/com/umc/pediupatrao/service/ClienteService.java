@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -62,22 +64,21 @@ public class ClienteService {
     }
 
     private void registrarAlteracaoCliente(Cliente anterior, Cliente atualizado) {
-        List<String> campos = new ArrayList<>();
-        List<String> valoresAnteriores = new ArrayList<>();
-        List<String> valoresNovos = new ArrayList<>();
+        Map<String, String> valoresAnteriores = new LinkedHashMap<>();
+        Map<String, String> valoresNovos = new LinkedHashMap<>();
 
-        compararCampo(campos, valoresAnteriores, valoresNovos, "nome", anterior.getNome(), atualizado.getNome());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "telefone", anterior.getTelefone(), atualizado.getTelefone());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "cep", anterior.getCep(), atualizado.getCep());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "logradouro", anterior.getLogradouro(), atualizado.getLogradouro());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "numero", anterior.getNumero(), atualizado.getNumero());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "complemento", anterior.getComplemento(), atualizado.getComplemento());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "bairro", anterior.getBairro(), atualizado.getBairro());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "cidade", anterior.getCidade(), atualizado.getCidade());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "estado", anterior.getEstado(), atualizado.getEstado());
-        compararCampo(campos, valoresAnteriores, valoresNovos, "endereco", anterior.getEndereco(), atualizado.getEndereco());
+        compararCampo(valoresAnteriores, valoresNovos, "nome", anterior.getNome(), atualizado.getNome());
+        compararCampo(valoresAnteriores, valoresNovos, "telefone", anterior.getTelefone(), atualizado.getTelefone());
+        compararCampo(valoresAnteriores, valoresNovos, "cep", anterior.getCep(), atualizado.getCep());
+        compararCampo(valoresAnteriores, valoresNovos, "logradouro", anterior.getLogradouro(), atualizado.getLogradouro());
+        compararCampo(valoresAnteriores, valoresNovos, "numero", anterior.getNumero(), atualizado.getNumero());
+        compararCampo(valoresAnteriores, valoresNovos, "complemento", anterior.getComplemento(), atualizado.getComplemento());
+        compararCampo(valoresAnteriores, valoresNovos, "bairro", anterior.getBairro(), atualizado.getBairro());
+        compararCampo(valoresAnteriores, valoresNovos, "cidade", anterior.getCidade(), atualizado.getCidade());
+        compararCampo(valoresAnteriores, valoresNovos, "estado", anterior.getEstado(), atualizado.getEstado());
+        compararCampo(valoresAnteriores, valoresNovos, "endereco", anterior.getEndereco(), atualizado.getEndereco());
 
-        if (campos.isEmpty()) {
+        if (valoresAnteriores.isEmpty()) {
             return;
         }
 
@@ -85,21 +86,19 @@ public class ClienteService {
                 "ALTERAÇÃO DE CLIENTE",
                 "Cliente",
                 atualizado.getId(),
-                String.join(", ", campos),
-                String.join(" | ", valoresAnteriores),
-                String.join(" | ", valoresNovos),
+                valoresAnteriores,
+                valoresNovos,
                 null
         );
     }
 
-    private void compararCampo(List<String> campos, List<String> anteriores, List<String> novos,
+    private void compararCampo(Map<String, String> anteriores, Map<String, String> novos,
                                String nome, String valorAnterior, String valorNovo) {
         String anterior = valorAnterior != null ? valorAnterior : "";
         String atual = valorNovo != null ? valorNovo : "";
         if (!Objects.equals(anterior, atual)) {
-            campos.add(nome);
-            anteriores.add(anterior.isBlank() ? "(vazio)" : anterior);
-            novos.add(atual.isBlank() ? "(vazio)" : atual);
+            anteriores.put(nome, anterior.isBlank() ? "(vazio)" : anterior);
+            novos.put(nome, atual.isBlank() ? "(vazio)" : atual);
         }
     }
 

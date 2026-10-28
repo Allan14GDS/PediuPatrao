@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "pedidos")
@@ -21,6 +22,10 @@ public class Pedido {
     private List<ItemPedido> itens;
     private Double desconto;
     private Double valorTotal;
+    private LocalDateTime dataHoraEntrada;
+    private String usuarioResponsavel;
+    private LocalDateTime dataHoraSaida;
+    private String usuarioResponsavelSaida;
 
     public String getId() {
         return id;
@@ -100,5 +105,37 @@ public class Pedido {
 
     public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
+    }
+
+    public LocalDateTime getDataHoraEntrada() {
+        return dataHoraEntrada;
+    }
+
+    public void setDataHoraEntrada(LocalDateTime dataHoraEntrada) {
+        this.dataHoraEntrada = dataHoraEntrada;
+    }
+
+    public String getUsuarioResponsavel() {
+        return usuarioResponsavel;
+    }
+
+    public void setUsuarioResponsavel(String usuarioResponsavel) {
+        this.usuarioResponsavel = usuarioResponsavel;
+    }
+
+    public LocalDateTime getDataHoraSaida() {
+        return dataHoraSaida;
+    }
+
+    public void setDataHoraSaida(LocalDateTime dataHoraSaida) {
+        this.dataHoraSaida = dataHoraSaida;
+    }
+
+    public String getUsuarioResponsavelSaida() {
+        return usuarioResponsavelSaida;
+    }
+
+    public void setUsuarioResponsavelSaida(String usuarioResponsavelSaida) {
+        this.usuarioResponsavelSaida = usuarioResponsavelSaida;
     }
 }
