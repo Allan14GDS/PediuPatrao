@@ -39,7 +39,6 @@ public class ClienteService {
         return clienteRepository.findAll();
     }
 
-    // Método para excluir cliente
     public void excluir(String id) {
         clienteRepository.deleteById(id);
     }
@@ -48,7 +47,6 @@ public class ClienteService {
         return clienteRepository.findById(id);
     }
 
-    // Método para salvar um novo cliente ou atualizar um cliente existente
     public Cliente salvar(Cliente cliente) {
         if (cliente.getId() == null || cliente.getId().isBlank()) {
             cliente.setId(null);

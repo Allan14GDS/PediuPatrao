@@ -37,9 +37,6 @@ public class HomeController {
         return "index";
     }
 
-    // ========================
-    // USUÁRIOS
-    // ========================
     @GetMapping("/usuarios")
     public String listarUsuarios(Model model) {
         List<Usuario> usuarios = (List<Usuario>) usuarioService.listarTodos();
@@ -98,9 +95,6 @@ public class HomeController {
         return "redirect:/usuarios";
     }
 
-    // ========================
-    // PRODUTOS
-    // ========================
     @GetMapping("/produtos")
     public String produtos(Model model) {
         List<Produto> produtos = produtoService.listarProdutos();
@@ -110,9 +104,6 @@ public class HomeController {
         return "layout";
     }
 
-    // ========================
-    // OUTRAS ROTAS
-    // ========================
     @GetMapping("/configuracoes")
     public String configuracoes(Model model) {
         model.addAttribute("content", "configuracoes :: content");

@@ -5,7 +5,6 @@
              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ✅ Parent do Spring Boot gerencia versões automaticamente -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,17 +15,16 @@
     <groupId>com.umc</groupId>
     <artifactId>pediupatrao</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging> <!-- ✅ jar para Spring Boot standalone -->
+    <packaging>jar</packaging>
     <name>pediupatrao</name>
 
     <properties>
-        <java.version>21</java.version> <!-- ✅ Java 21 LTS recomendado -->
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>com.umc.pediupatrao.PizzariaPedidosApplication</start-class>
     </properties>
 
     <dependencies>
-        <!-- ✅ Versões gerenciadas pelo parent — sem necessidade de declarar -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -42,7 +40,7 @@
         <dependency>
             <groupId>nz.net.ultraq.thymeleaf</groupId>
             <artifactId>thymeleaf-layout-dialect</artifactId>
-            <version>3.3.0</version> <!-- ✅ versão compatível com Spring Boot 3 -->
+            <version>3.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -55,7 +53,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version> <!-- ✅ versão correta -->
+            <version>1.18.36</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -76,7 +74,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <!-- ✅ versão herdada do parent, sem necessidade de repetir -->
                 <configuration>
                     <mainClass>com.umc.pediupatrao.PizzariaPedidosApplication</mainClass>
                 </configuration>
