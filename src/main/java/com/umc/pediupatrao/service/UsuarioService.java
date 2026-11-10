@@ -18,33 +18,27 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Busca um usuário por ID
     public Optional<Usuario> buscarPorId(String id) {
         return usuarioRepository.findById(id);
     }
 
-    // Busca um usuário por username
     public Optional<Usuario> buscarPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
 
-    // Salva um novo usuário (criptografando a senha)
     public void salvarUsuario(Usuario usuario) {
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Criptografa a senha
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         usuarioRepository.save(usuario);
     }
 
-    // Deleta um usuário pelo ID
     public void deletarUsuario(String id) {
         usuarioRepository.deleteById(id);
     }
 
-    // Lista todos os usuários
     public Iterable<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
-    // Atualiza o usuário usuários
     public void atualizarUsuario(String id, Usuario usuarioAtualizado) {
         usuarioRepository.findById(id).ifPresent(usuarioExistente -> {
             usuarioExistente.setUsername(usuarioAtualizado.getUsername());

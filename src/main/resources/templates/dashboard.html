@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Pediu Patrão</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+  <header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <a href="/pedidos" class="flex items-center gap-2.5">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white">
+          <i data-lucide="pizza" class="h-4 w-4"></i>
+        </span>
+        <span class="text-sm font-semibold tracking-tight">Pediu Patrão</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a href="/pedidos"
+           class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="arrow-left" class="h-4 w-4"></i>
+          <span class="hidden sm:inline">Pedidos</span>
+        </a>
+        <form action="/logout" th:action="@{/logout}" method="post">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+            <i data-lucide="log-out" class="h-4 w-4"></i>
+            Sair
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Dashboard</h1>
+        <p class="mt-1 text-sm text-slate-500">Acompanhe vendas, pedidos e o que mais sai no forno.</p>
+      </div>
+
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div id="periodoFiltro"
+             data-selecionado="hoje"
+             class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1"
+             role="group"
+             aria-label="Período">
+          <button type="button" data-periodo="hoje" aria-pressed="true"
+                  class="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-slate-900 shadow-sm">
+            Hoje
+          </button>
+          <button type="button" data-periodo="7d" aria-pressed="false"
+                  class="rounded-md px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+            7 dias
+          </button>
+          <button type="button" data-periodo="30d" aria-pressed="false"
+                  class="rounded-md px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+            30 dias
+          </button>
+          <button type="button" data-periodo="todos" aria-pressed="false"
+                  class="rounded-md px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+            Todos
+          </button>
+        </div>
+
+        <button id="btn-atualizar" type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+          <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+          Atualizar
+        </button>
+      </div>
+    </div>
+
+    <section aria-label="Indicadores gerais de vendas" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium text-slate-500">Receita Total</p>
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+            <i data-lucide="wallet" class="h-4 w-4"></i>
+          </span>
+        </div>
+        <p id="kpi-receita-total" class="mt-3 text-2xl font-semibold tracking-tight text-slate-900">R$ 0,00</p>
+        <p class="mt-1 text-xs text-slate-500">Soma dos pedidos no período</p>
+      </article>
+
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium text-slate-500">Total de Pedidos</p>
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+            <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+          </span>
+        </div>
+        <p id="kpi-total-pedidos" class="mt-3 text-2xl font-semibold tracking-tight text-slate-900">0</p>
+        <p class="mt-1 text-xs text-slate-500">Pedidos registrados no período</p>
+      </article>
+
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium text-slate-500">Ticket Médio</p>
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+            <i data-lucide="receipt" class="h-4 w-4"></i>
+          </span>
+        </div>
+        <p id="kpi-ticket-medio" class="mt-3 text-2xl font-semibold tracking-tight text-slate-900">R$ 0,00</p>
+        <p class="mt-1 text-xs text-slate-500">Receita dividida pelos pedidos</p>
+      </article>
+
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-medium text-slate-500">Taxa de Cancelamentos</p>
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            <i data-lucide="ban" class="h-4 w-4"></i>
+          </span>
+        </div>
+        <p id="kpi-taxa-cancelamentos" class="mt-3 text-2xl font-semibold tracking-tight text-slate-900">0%</p>
+        <p class="mt-1 text-xs text-slate-500">Pedidos cancelados sobre o total</p>
+      </article>
+    </section>
+
+    <section aria-label="Análise de vendas e situação dos pedidos" class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <article class="rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
+        <div class="border-b border-slate-200 px-6 py-4">
+          <h2 class="text-base font-semibold tracking-tight text-slate-900">Evolução de Vendas</h2>
+          <p class="mt-1 text-sm text-slate-500">Receita e volume de pedidos ao longo do período</p>
+        </div>
+        <div class="p-6">
+          <div class="relative h-80">
+            <canvas id="graficoEvolucaoVendas" aria-label="Gráfico de evolução de vendas"></canvas>
+          </div>
+        </div>
+      </article>
+
+      <article class="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 px-6 py-4">
+          <h2 class="text-base font-semibold tracking-tight text-slate-900">Situação dos Pedidos</h2>
+          <p class="mt-1 text-sm text-slate-500">Distribuição por status no período</p>
+        </div>
+        <div class="flex items-center justify-center p-6">
+          <div class="relative h-64 w-full max-w-xs">
+            <canvas id="graficoSituacaoPedidos" aria-label="Gráfico de situação dos pedidos"></canvas>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section aria-label="Produtos mais vendidos" class="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-200 px-6 py-4">
+        <h2 class="text-base font-semibold tracking-tight text-slate-900">Top Produtos Mais Vendidos</h2>
+        <p class="mt-1 text-sm text-slate-500">Ranking por quantidade vendida no período</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
+          <thead class="border-b border-slate-200 bg-slate-50">
+            <tr>
+              <th scope="col" class="w-24 px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Ranking</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Produto</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-500">Qtd Vendida</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-500">Receita</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-top-produtos" class="divide-y divide-slate-200">
+            <tr>
+              <td colspan="4" class="px-6 py-10 text-center text-sm text-slate-500">
+                Nenhum produto no período selecionado.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    const rotulosStatus = {
+      RECEBIDO: 'Recebido',
+      EM_PREPARACAO: 'Em preparação',
+      PRONTO: 'Pronto',
+      SAIU_PARA_ENTREGA: 'Saiu para entrega',
+      RETIRADO: 'Retirado',
+      FINALIZADO: 'Finalizado',
+      CANCELADO: 'Cancelado',
+    };
+    const coresStatus = {
+      RECEBIDO: '#64748b',
+      EM_PREPARACAO: '#f59e0b',
+      PRONTO: '#0ea5e9',
+      SAIU_PARA_ENTREGA: '#8b5cf6',
+      RETIRADO: '#6366f1',
+      FINALIZADO: '#10b981',
+      CANCELADO: '#f43f5e',
+    };
+
+    let chartVendas = null;
+    let chartStatus = null;
+    let requisicaoAtual = 0;
+
+    if (window.Chart) {
+      Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, sans-serif';
+      Chart.defaults.color = '#64748b';
+    }
+
+    const filtroPeriodo = document.getElementById('periodoFiltro');
+    filtroPeriodo.querySelectorAll('[data-periodo]').forEach((botao) => {
+      botao.addEventListener('click', () => {
+        filtroPeriodo.dataset.selecionado = botao.dataset.periodo;
+        filtroPeriodo.querySelectorAll('[data-periodo]').forEach((item) => {
+          const ativo = item === botao;
+          item.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+          item.classList.toggle('bg-white', ativo);
+          item.classList.toggle('text-slate-900', ativo);
+          item.classList.toggle('shadow-sm', ativo);
+          item.classList.toggle('text-slate-500', !ativo);
+        });
+        carregarDadosDashboard();
+      });
+    });
+
+    document.getElementById('btn-atualizar').addEventListener('click', () => {
+      carregarDadosDashboard();
+    });
+
+    function periodoSelecionado() {
+      const seletor = document.getElementById('periodoFiltro');
+      if (!seletor) {
+        return '7d';
+      }
+      if (seletor.value) {
+        return seletor.value;
+      }
+      const pressionado = seletor.querySelector('[aria-pressed="true"]');
+      return seletor.dataset.selecionado || pressionado?.dataset.periodo || '7d';
+    }
+
+    function textoMoeda(valor) {
+      const numero = Number(valor);
+      return moeda.format(Number.isFinite(numero) ? numero : 0);
+    }
+
+    function rotuloData(iso) {
+      const data = new Date(`${iso}T00:00:00`);
+      if (Number.isNaN(data.getTime())) {
+        return String(iso);
+      }
+      return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    function celula(texto, classes) {
+      const td = document.createElement('td');
+      td.className = classes;
+      td.textContent = texto;
+      return td;
+    }
+
+    function mensagemTabela(texto) {
+      const corpo = document.getElementById('tabela-top-produtos');
+      corpo.replaceChildren();
+      const linha = document.createElement('tr');
+      const coluna = celula(texto, 'px-6 py-10 text-center text-sm text-slate-500');
+      coluna.colSpan = 4;
+      linha.appendChild(coluna);
+      corpo.appendChild(linha);
+    }
+
+    function atualizarKpis(dados) {
+      const taxa = Number(dados.taxaCancelamento);
+      document.getElementById('kpi-receita-total').textContent = textoMoeda(dados.receitaTotal);
+      document.getElementById('kpi-total-pedidos').textContent = Number(dados.totalPedidos || 0).toLocaleString('pt-BR');
+      document.getElementById('kpi-ticket-medio').textContent = textoMoeda(dados.ticketMedio);
+      document.getElementById('kpi-taxa-cancelamentos').textContent =
+        `${(Number.isFinite(taxa) ? taxa : 0).toLocaleString('pt-BR', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })}%`;
+    }
+
+    function atualizarGraficoVendas(evolucaoVendas) {
+      if (chartVendas) {
+        chartVendas.destroy();
+      }
+      const serie = evolucaoVendas || {};
+      const labels = Object.keys(serie);
+      chartVendas = new Chart(document.getElementById('graficoEvolucaoVendas'), {
+        type: 'bar',
+        data: {
+          labels: labels.map(rotuloData),
+          datasets: [{
+            label: 'Receita',
+            data: labels.map((dia) => Number(serie[dia]) || 0),
+            backgroundColor: '#0f172a',
+            borderRadius: 6,
+            maxBarThickness: 28,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (contexto) => textoMoeda(contexto.parsed.y),
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#e2e8f0' },
+              ticks: { callback: (valor) => textoMoeda(valor) },
+            },
+          },
+        },
+      });
+    }
+
+    function atualizarGraficoStatus(situacaoPedidos) {
+      if (chartStatus) {
+        chartStatus.destroy();
+      }
+      const situacao = situacaoPedidos || {};
+      const chaves = Object.keys(situacao).filter((status) => Number(situacao[status]) > 0);
+      const semPedidos = chaves.length === 0;
+      chartStatus = new Chart(document.getElementById('graficoSituacaoPedidos'), {
+        type: 'doughnut',
+        data: {
+          labels: semPedidos ? ['Sem pedidos'] : chaves.map((status) => rotulosStatus[status] || status),
+          datasets: [{
+            data: semPedidos ? [1] : chaves.map((status) => Number(situacao[status]) || 0),
+            backgroundColor: semPedidos ? ['#e2e8f0'] : chaves.map((status) => coresStatus[status] || '#94a3b8'),
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              display: !semPedidos,
+              position: 'bottom',
+              labels: { boxWidth: 8, usePointStyle: true, padding: 14 },
+            },
+          },
+        },
+      });
+    }
+
+    function atualizarRanking(ranking) {
+      const corpo = document.getElementById('tabela-top-produtos');
+      corpo.replaceChildren();
+      if (!Array.isArray(ranking) || ranking.length === 0) {
+        mensagemTabela('Nenhum produto no período selecionado.');
+        return;
+      }
+      ranking.forEach((item, indice) => {
+        const linha = document.createElement('tr');
+        linha.className = 'hover:bg-slate-50';
+        linha.append(
+          celula(`${indice + 1}º`, 'px-6 py-4 font-medium text-slate-500'),
+          celula(item.nome || '—', 'px-6 py-4 font-medium text-slate-900'),
+          celula(Number(item.quantidadeVendida || 0).toLocaleString('pt-BR'), 'px-6 py-4 text-right tabular-nums text-slate-700'),
+          celula(textoMoeda(item.receitaGerada), 'px-6 py-4 text-right tabular-nums font-medium text-slate-900')
+        );
+        corpo.appendChild(linha);
+      });
+    }
+
+    async function carregarDadosDashboard() {
+      const periodo = periodoSelecionado();
+      const requisicao = ++requisicaoAtual;
+      const botao = document.getElementById('btn-atualizar');
+      botao.disabled = true;
+      botao.classList.add('opacity-60');
+      try {
+        const resposta = await fetch(`/api/dashboard/dados?periodo=${encodeURIComponent(periodo)}`, {
+          headers: { Accept: 'application/json' },
+        });
+        if (requisicao !== requisicaoAtual) {
+          return;
+        }
+        if (!resposta.ok) {
+          let detalhe = 'Não foi possível carregar o dashboard.';
+          try {
+            const erro = await resposta.json();
+            if (erro && erro.erro) {
+              detalhe = erro.erro;
+            }
+          } catch (ignorado) {
+            detalhe = 'Não foi possível carregar o dashboard.';
+          }
+          throw new Error(detalhe);
+        }
+        const dados = await resposta.json();
+        if (requisicao !== requisicaoAtual) {
+          return;
+        }
+        atualizarKpis(dados);
+        atualizarGraficoVendas(dados.evolucaoVendas);
+        atualizarGraficoStatus(dados.situacaoPedidos);
+        atualizarRanking(dados.ranking);
+      } catch (erro) {
+        if (requisicao !== requisicaoAtual) {
+          return;
+        }
+        mensagemTabela(erro.message || 'Não foi possível carregar o dashboard.');
+      } finally {
+        if (requisicao === requisicaoAtual) {
+          botao.disabled = false;
+          botao.classList.remove('opacity-60');
+        }
+      }
+    }
+
+    carregarDadosDashboard();
+  </script>
+</body>
+</html>
